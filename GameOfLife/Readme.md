@@ -1,35 +1,35 @@
-# Nand2Tetris Miterm Project: Game of life
-hack-ის assemly-ზე დაწერეთ Game of life სიმულატორი. პროექტის შესამოწმებლად დაგჭირდებათ მხოლოდ CPU Emulator პროგრამა.
+# Nand2Tetris Miterm Project: The Game of Life
+Write Game of life simulator on hack assemly. You only need the CPU Emulator program to test the project.
 
-### [50%] ამოცანა 1:
+### [50%] Combination 1:
 
-სიმულატორის სამყარო შედგება 16x32 მატრიცისგან, თითოეული უჯრა არის დაკავებული (1) ან თავისუფალი (0). სამყაროს საწყისი მდგომარეობა ჩაიტვირთება ტესტ ფაილის მეშვეობით. სამყარო მეხსიერებაზე დამეპილია შემდეგ მისამართებზე:
-```
-RAM[100] == grid(0, 0)
-RAM[132] == grid(1, 0)
-RAM[611] == grid(16, 31)
-```
+The simulator world consists of a 16x3 matrix, the tray is either occupied (1) or free (0). The initial state of the universe will be loaded through the test file. I'm stuck in the memory of the world at the following addresses:
+`` `
+RAM [100] == Grid (0, 0)
+RAM [132] == Grid (1, 0)
+RAM [611] == Grid (16, 31)
+`` `
 
-ხოლო RAM[99]-ში წერია თუ რამდენი იტერაცია უნდა განახორციელოს თქვენმა სიმულატორმა.
-ყოველი იტერაცია აგენერირებს ახალ სამყაროს. გენერაციის წესები მარტივია:
-```
-For a space that is 'populated':
-* Each cell with one or no neighbors dies, as if by solitude.
-* Each cell with four or more neighbors dies, as if by overpopulation.
-* Each cell with two or three neighbors survives.
+And RAM [99] states how much iteration your simulator should perform.
+Each iteration generates a new world. The rules are simple:
+`` `
+For a space that is "populated":
+* Each cell dies with one or none of its neighbors, as if from loneliness.
+* Each cell of four or more neighbors dies, as if in an overpopulated population.
+* Each cell is survived by two or three neighbors.
 
-For a space that is 'empty' or 'unpopulated'
-* Each cell with three neighbors becomes populated.
-```
+For a space that is "empty" or "populated"
+* Each cell is inhabited by three neighbors.
+`` `
 
-### [50%] ამოცანა 2:
-გააკეთეთ სიმულატორის ვიზუალიზაცია hack-ის ეკრანის გამოყენებით. არსებული ეკრანი არის 256x512 რეზოლუციის. კომფორტისთვის, დავალების ფარგლებში თითოეული GameOfLife უჯრა ეკრანზე უნდა დავხატოთ 16x16 კვადრატად. შესაბამისად ეკრანიც გამოვა  16x32 კვადრატების მატრიცა.
+### [50%] Combination 2:
+Visualization of all simulators uses a hack screen. The screen is of 256x512 resolution. For convenience, the action within the GameOfLife tray on the screen should be drawn in 16x16 squares. Accordingly the screen will also come out with a matrix of 16x32 squares.
 
-თუ უჯრა დაკავებულია (1) მისი შესაბამისი კვადრატი უნდა გაშავდეს ეკრანზე (კვადრატის ყველა წერტილი უნდა იყოს შავი), თუ უჯრა ცარიელია (0) ეკრანზე მისი შესაბამისი კვადრატის ყველა წერტილი უნდა იყოს თეთრი.
+If the tray is busy (1) its corresponding square should be black on the screen (all dots in the square should be black), if the tray is empty (0) all dots in its corresponding square should be white on the screen.
 
-ეკრანის გადახტვა უნდა მოხდეს ყოველი იტერაციის შემდეგ!
+The screen must be transferred after each iteration!
 
 
-Game of Life არ არის უბრალო თამაში, ეს არის ე.წ. cellular automata, გამოთვლითი თეორიული კომპიუტერის ერთ-ერთი სახეობა. ცნობილია რომ ის არის Turing complete. რაც ნიშნავს რომ მიუხედავად მისი მწირი წესებისა, თუ გვექნება უსასრულო ზომის სამყარო და სწორად განვსაზღვრავთ სამყაროს საწყის მდგომარეობას, მას შეუძლია გამოთვალოს ნებისმიერი ამოცანა, რაც კი გამოთვლადია!
+Game of Life is not a simple game, it is so called. cellular automata, one of the types of computational theoretical computer. It is known that he is Turing complete. Which means that despite its meager rules, if we have an infinite universe and can determine the initial state of the universe, it can detect any human being, even if it is computable!
 
-დეტალებისთვის იხილეთ ბმული https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+For details see the link https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
