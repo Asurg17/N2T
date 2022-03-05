@@ -1,0 +1,108 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+
+    //Part 1
+    Mux16(a=instruction, b=ALU-out, sel=instruction[15], out=Mux-out); //If instruction[15] is 0 -> A incstruction so we need instruction
+                                                                       //If is 1 C intruction so we need ALU-out
+    
+    //Part2
+    //Should load into A register when it is A instruction or
+    //destionation bit(instruction[5]) is qeual to 1, which 
+    //will load ALU-out to the A register
+    //So instruction[15] == 0 or instruction[5] is 1
+    //not load when only instruction[15]==1 and instruction[5]==0
+    Not(in=instruction[5], out=not-out1);
+    And(a=instruction[15], b=not-out1, out=and-out);
+    Not(in=and-out, out=loadToAReg);
+
+    ARegister(in=Mux-out, load=loadToAReg, out[0..14]=addressM, out=Areg); //if load == 1 -> Load mux16's output to A register 
+                                                                         //and out[0..14]->(15 bit address) to adressM
+
+    //Part3
+    Mux16(a=Areg, b=inM, sel=instruction[12], out=AluInput1);
+
+    //Part4
+    And(a=instruction[15], b=instruction[4], out=loadToDReg);
+    DRegister(in=ALU-out, load=loadToDReg, out=Dreg); //If it is C instruction and 
+                                                      //dest bit -> instruction[4] is 1 ---> load ALU output to D registed
+
+    //Part5
+    ALU(x=Dreg, y=AluInput1, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=ALU-out, out=outM, zr=zero, ng=negative);
+
+    //Part6
+    And(a=instruction[15], b=instruction[3], out=writeM); //If is C instruction and destination bit is 1 then assighn 1 to writeM
+
+    //Part7
+    //Find out is negative, zero or positive the alu output
+    Or(a=zero, b=negative, out=IsZeroOrNegative);
+    Mux(a=true, b=false, sel=IsZeroOrNegative, out=isPositive); //If not zero and not negative then positive
+
+    //Part8
+    //Check if conditions below happens 
+
+    //Check if it is -> JGT/JGE/JNE/JMP
+    And(a=instruction[0], b=isPositive, out=jumpPos); //When positive mus be -> 001/011/101/111
+    //Check if it is -> JEQ/JGE/JLE/JMP
+    And(a=instruction[1], b=zero, out=jumpZero); //When zero must be -> 010/011/110/111
+    //Check if it is -> JLT/JNE/JLE/JMP
+    And(a=instruction[2], b=negative, out=jumpNeg); //When negative must be -> 100/101/110/111
+
+    //Part9
+    //If even one of this is possible to happen we must jump
+    //Cause jump condition is true
+    Or(a=jumpPos, b=jumpZero, out=Or-out1);
+    Or(a=Or-out1, b=jumpNeg, out=OR-out2);
+
+    //Part10
+    //If every jump instruction is equal to 0 there is no jump
+    // Or(a=instruction[0], b=instruction[1], out=or1);
+    // Or(a=instruction[2], b=or1, out=or2);
+    // Mux(a=false, b=true, sel=or2, out=noJump);
+
+    //Part11
+    //And(a=noJump, b=OR-out2, out=isJump); 
+    And(a=OR-out2, b=instruction[15], out=load); //if it is C instruction
+
+    //Final 
+    PC(in=Areg, load=load, inc=true, reset=reset, out[0..14]=pc);
+}

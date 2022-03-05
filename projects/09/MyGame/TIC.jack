@@ -1,0 +1,229 @@
+/** Implements the TIC game */
+
+class TIC { 
+
+    field Square player;
+    field Square briliant; // the square of this game
+    field Square cur;
+    field bool failed;
+
+    field int brX;
+    field int brY;
+    field int brSize;
+
+    field int direction;
+
+    field int checker; //if 1 that means that reached the brilliant
+
+    field Array arr;
+    field int hlp;
+
+/////////
+
+    constructor TIC new() {
+        let brX = 252;
+        let brY = 1;
+        let brSize = 8;
+
+        let direction = 0;
+
+        let checker = 0;
+
+        let briliant = Square.new(brX, brY, brSize);  
+        let player = Square.new(248, 239, 16);
+
+        let arr = Array.new(28);
+
+        do simulateObsticals();
+
+        let failed = false;
+
+        return this;
+   }
+
+   method void simulateObsticals(){
+    
+        let arr[0] = Square.new(0, 128, 7);
+        let arr[1] = Square.new(18, 224, 7);
+        let arr[2] = Square.new(36, 24, 7);
+        let arr[3] = Square.new(54, 184, 7);
+        let arr[4] = Square.new(72, 232, 7);
+        let arr[5] = Square.new(90, 136, 7);
+        let arr[6] = Square.new(108, 88, 7);
+        let arr[7] = Square.new(126, 160, 7);
+        let arr[8] = Square.new(144, 120, 7);
+        let arr[9] = Square.new(162, 16, 7);
+        let arr[10] = Square.new(180, 56, 7);
+        let arr[11] = Square.new(198, 192, 7);
+        let arr[12] = Square.new(216, 104, 7);
+        let arr[13] = Square.new(224, 64, 7);
+        let arr[14] = Square.new(245, 32, 7);
+        let arr[15] = Square.new(262, 176, 7);
+        let arr[16] = Square.new(300, 112, 7);
+        let arr[17] = Square.new(315, 152, 7);
+        let arr[18] = Square.new(332, 208, 7);
+        let arr[19] = Square.new(256, 96, 7);
+        let arr[20] = Square.new(363, 144, 7);
+        let arr[21] = Square.new(387, 40, 7);
+        let arr[22] = Square.new(404, 216, 7);
+        let arr[23] = Square.new(426, 72, 7);
+        let arr[24] = Square.new(445, 48, 7);
+        let arr[25] = Square.new(460, 80, 7);
+        let arr[26] = Square.new(478, 168, 7);
+        let arr[27] = Square.new(492, 200, 7);
+        
+        return;
+   }
+
+    /** Moves the player in the current direction. */
+    method void movePlayer() {
+        do moveSquares();
+        if(failed = true) { return; }
+        if (direction = 1) { do player.moveUp(); }
+        if (direction = 2) { do player.moveDown(); }
+        if (direction = 3) { do player.moveLeft(); }
+        if (direction = 4) { do player.moveRight(); }
+        do Sys.wait(50);  // delays the next movement
+        return;
+    }
+
+    method void moveSquares() {
+        var int i;
+        let i = 27;
+
+        while(~(i = -1)){
+            let cur = arr[i];
+
+            //Check if crashed
+            if( ((cur.getY() > (player.getY() - cur.getSize())) | (cur.getY() = (player.getY() - cur.getSize()))) &
+                ((cur.getY() < (player.getY() + player.getSize())) | (cur.getY() = (player.getY() + player.getSize()))) ){
+
+                    if(((cur.getX() > (player.getX() - cur.getSize())) | (cur.getX() = (player.getX() - cur.getSize()))) &
+                      ((cur.getX() < (player.getX() + player.getSize())) | (cur.getX() = (player.getX() + player.getSize()))) ){  
+                            let failed = true;
+                            return;
+                      }
+            }
+
+            if (direction = 1) { do cur.moveRight(); }
+            if (direction = 2) { do cur.moveLeft(); }
+            if (direction = 3) { do cur.moveRight(); }
+            if (direction = 4) { do cur.moveLeft(); }
+
+            let i = i - 1;
+            
+            //Check if crashed
+            if( ((cur.getY() > (player.getY() - cur.getSize())) | (cur.getY() = (player.getY() - cur.getSize()))) &
+                ((cur.getY() < (player.getY() + player.getSize())) | (cur.getY() = (player.getY() + player.getSize()))) ){
+
+                    if(((cur.getX() > (player.getX() - cur.getSize())) | (cur.getX() = (player.getX() - cur.getSize()))) &
+                      ((cur.getX() < (player.getX() + player.getSize())) | (cur.getX() = (player.getX() + player.getSize()))) ){  
+                            let failed = true;
+                            return;
+                      }
+            }
+
+            // //check if reached the end 
+            // if( (cur.getX() + cur.getSize()) = 511){ 
+            //     let hlp = cur.getY();
+            //     do cur.erase();
+            //     let arr[i] = Square.new(0, hlp, 7);
+            // }
+            
+        } 
+        // do Sys.wait(50);
+
+        return;
+    }
+
+
+   /** Runs the game: handles the user's inputs and moves the player accordingly */
+    method void run() {
+        var char key;  // the key currently pressed by the user
+        var boolean exit;
+        let exit = false;
+      
+        while (~exit) {
+            // waits for a key to be pressed
+            while (key = 0) {
+              let key = Keyboard.keyPressed();
+            
+                do checkIfReachedTheBriliant();
+
+                if(checker = 1){
+                    let key = 1;
+                }else{
+                    do movePlayer();
+                }
+
+                if(failed = true){
+                    do printFailedLabel();
+                    return;
+                }
+
+            }
+
+            if (key = 81)  { let exit = true; }     // q key
+            if (checker = 1) {do printWinningLabel();
+                            let exit = true; } //If we win need to finish program
+            if (key = 90)  { do player.decSize(); } // z key
+            if (key = 88)  { do player.incSize(); } // x key
+            if (key = 131) { let direction = 1; }   // up arrow
+            if (key = 133) { let direction = 2; }   // down arrow
+            if (key = 130) { let direction = 3; }   // left arrow
+            if (key = 132) { let direction = 4; }   // right arrow
+
+            // waits for the key to be released
+            while (~(key = 0)) {
+                let key = Keyboard.keyPressed();
+
+                do checkIfReachedTheBriliant();
+
+                if(checker = 1){
+                    let key = 0;
+                }else{
+                    do movePlayer();
+                }
+
+                if(failed = true){
+                    do printFailedLabel();
+                    return;
+                }
+            }
+        } // while
+        return;
+   }
+
+   method void checkIfReachedTheBriliant(){
+
+        if(( ((player.getX() + player.getSize()) > brX) | ((player.getX() + player.getSize()) = brX) ) &
+            ( ( player.getX() < (brX + brSize) ) | ( player.getX() = (brX + brSize) ) ) ) {  //check the x coordinate
+
+                if((player.getY() < (brY + brSize)) | (player.getY() = (brY + brSize))){ // checke the y coordinate
+                    let checker = 1;
+                } 
+
+        }
+        return;
+   }
+
+    method void printWinningLabel(){
+        do Output.printString("          Congratulations! ^_^ YOU WIN IN THIS GAME ^_^ ");
+        return;
+    }
+
+    method void printFailedLabel(){
+        do Output.printString("             OOH ! -_- YOU LOOSE IN THIS GAME :( ");
+        return;
+    }
+
+    /** Disposes this game. */
+   method void dispose() {
+        do player.dispose();
+        do briliant.dispose();
+        do Memory.deAlloc(this);
+        return;
+   }
+
+
+}

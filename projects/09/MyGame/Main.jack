@@ -1,0 +1,13 @@
+//Main class for TIC -> take if you can 
+
+
+/** Initializes a new TIC game and starts running it. */
+class Main {
+    function void main() {
+        var TIC game;
+        let game = TIC.new();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

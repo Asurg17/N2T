@@ -1,0 +1,2 @@
+To run the program you have to pass prgoram 2 arguments: the path to the directory where the vm.file is located and the vm.file
+Example: VmTranslator.py "C:---\projects\07\MemoryAccess\BasicTest" "BasicTest.vm" 
